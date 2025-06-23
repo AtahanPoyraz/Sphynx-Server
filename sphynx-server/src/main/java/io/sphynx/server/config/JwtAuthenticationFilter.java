@@ -31,9 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain)
-            throws ServletException, IOException
-    {
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
             final String authHeader = request.getHeader("Authorization");
 
@@ -43,23 +42,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             final String token = authHeader.substring(7);
-            if (!this.jwtService.isTokenValid(token)) {
-                filterChain.doFilter(request, response);
+
+            if (!this.jwtService.isTokenValid(token, "auth")) {
+                SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
                 return;
             }
 
-            UserModel user = this.jwtService.extractClaimsFromToken(token);
+            UserModel user = this.jwtService.extractClaimsFromToken(token, "auth");
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities()
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
             filterChain.doFilter(request, response);
 
         } catch (EntityNotFoundException e) {
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();

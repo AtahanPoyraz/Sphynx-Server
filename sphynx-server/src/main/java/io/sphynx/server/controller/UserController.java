@@ -49,7 +49,7 @@ public class UserController {
             }
 
             String token = authHeader.substring(7);
-            UserModel user = this.jwtService.extractClaimsFromToken(token);
+            UserModel user = this.jwtService.extractClaimsFromToken(token, "auth");
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),

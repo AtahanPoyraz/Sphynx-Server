@@ -1,18 +1,17 @@
 package io.sphynx.server.controller;
 
 import io.sphynx.server.dto.GenericResponse;
+import io.sphynx.server.dto.auth.ResetPasswordRequest;
 import io.sphynx.server.dto.auth.SignInRequest;
 import io.sphynx.server.dto.auth.SignUpRequest;
+import io.sphynx.server.model.UserModel;
 import io.sphynx.server.service.AuthService;
 import io.sphynx.server.service.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -60,7 +59,7 @@ public class AuthController {
     ) {
         try {
             this.authService.authenticate(signInRequest);
-            String token = this.jwtService.generateToken(signInRequest.getEmail());
+            String token = this.jwtService.generateToken(signInRequest.getEmail(), "auth");
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
@@ -74,6 +73,43 @@ public class AuthController {
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "An error occurred while authenticating the user: " + e.getMessage(),
+                            null
+                            )
+                    );
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<GenericResponse<?>> resetPassword(
+            @RequestParam String resetToken,
+            @Valid @RequestBody ResetPasswordRequest resetPasswordRequest
+    ) {
+        try {
+            if (jwtService.isTokenValid(resetToken, "reset")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new GenericResponse<>(
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Reset token is invalid or has expired",
+                                null
+                                )
+                        );
+            }
+
+            UserModel user = this.jwtService.extractClaimsFromToken(resetToken, "reset");
+            this.authService.resetPassword(user, resetPasswordRequest);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new GenericResponse<>(
+                            HttpStatus.OK.value(),
+                            "Password reset successfully",
+                            null
+                            )
+                    );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new GenericResponse<>(
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "An error occurred while resetting password the user: " + e.getMessage(),
                             null
                             )
                     );

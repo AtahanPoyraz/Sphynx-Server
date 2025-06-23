@@ -1,5 +1,6 @@
 package io.sphynx.server.service;
 
+import io.sphynx.server.dto.auth.ResetPasswordRequest;
 import io.sphynx.server.dto.auth.SignInRequest;
 import io.sphynx.server.dto.auth.SignUpRequest;
 import io.sphynx.server.model.UserModel;
@@ -49,6 +50,11 @@ public class AuthService {
         user.setIsCredentialsNonExpired(true);
         user.setRoles(EnumSet.of(UserRole.ROLE_USER));
 
+        this.userRepository.save(user);
+    }
+
+    public void resetPassword(UserModel user, ResetPasswordRequest resetPasswordRequest) {
+        user.setPassword(this.passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
         this.userRepository.save(user);
     }
 }

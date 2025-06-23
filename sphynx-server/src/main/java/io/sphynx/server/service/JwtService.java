@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,17 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class JwtService {
     @Value("${security.jwt.secret_key}")
     private String jwtSecretKey;
 
-    @Value("${security.jwt.expiration}")
-    private long jwtExpiration;
+    @Value("${security.jwt.auth.expiration}")
+    private long jwtAuthExpiration;
+
+    @Value("${security.jwt.reset.expiration}")
+    private long jwtResetExpiration;
 
     private final UserRepository userRepository;
 
@@ -37,19 +42,33 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String requiredType) {
         UserModel user = this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User cannot found with email: " + email));
 
-        return Jwts.builder()
-                .subject(user.getUserId().toString())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + this.jwtExpiration))
-                .signWith(getSignInKey())
-                .compact();
+        return switch (requiredType.toLowerCase()) {
+            case ("auth") -> Jwts.builder()
+                    .subject(user.getUserId().toString())
+                    .claim("type", "auth")
+                    .issuedAt(new Date(System.currentTimeMillis()))
+                    .expiration(new Date(System.currentTimeMillis() + this.jwtAuthExpiration))
+                    .signWith(getSignInKey())
+                    .compact();
+
+            case ("reset") -> Jwts.builder()
+                    .subject(user.getUserId().toString())
+                    .claim("type", "reset")
+                    .issuedAt(new Date(System.currentTimeMillis()))
+                    .expiration(new Date(System.currentTimeMillis() + this.jwtResetExpiration))
+                    .signWith(getSignInKey())
+                    .compact();
+
+            default -> throw new IllegalArgumentException("Invalid token type");
+        };
     }
 
-    public UserModel extractClaimsFromToken(String token) {
+    public UserModel extractClaimsFromToken(String token, String requiredType) {
+        log.info("------------------------------------------------------o "  + requiredType);
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Invalid token");
         }
@@ -59,6 +78,11 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+
+        String tokenType = claims.get("type", String.class);
+        if (!requiredType.equals(tokenType)) {
+            throw new IllegalArgumentException("Invalid token type");
+        }
 
         String subject = claims.getSubject();
         if (subject == null || subject.isEmpty()) {
@@ -70,10 +94,10 @@ public class JwtService {
                 .orElseThrow(() -> new EntityNotFoundException("User cannot found"));
     }
 
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token, String requiredType) {
         try {
             if (token == null || token.isEmpty()) {
-                throw new IllegalArgumentException("Invalid token");
+                return false;
             }
 
             Claims claims = Jwts.parser()
@@ -81,6 +105,10 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
+
+            if (!requiredType.equals(claims.get("type", String.class))) {
+                return false;
+            }
 
             return claims.getExpiration().after(new Date());
 
