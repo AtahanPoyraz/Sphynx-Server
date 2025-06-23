@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package agent;
+
+option java_multiple_files = true;
+option java_package = "io.sphynx.server.protobuf.agent";
+option java_outer_classname = "AgentProto";
+
+import "google/protobuf/timestamp.proto";
+
+enum AgentStatus {
+  INACTIVE = 0;
+  ACTIVE = 1;
+}
+
+message AgentConfig {
+  int64 cpuMetricsCount = 1;
+  int64 memoryMetricsCount = 2;
+  int64 diskMetricsCount = 3;
+  int64 interval = 4;
+}
+
+message AgentModel {
+  string agentId = 1;
+  string agentName = 2;
+  AgentStatus agentStatus = 3;
+  AgentConfig agentConfig = 4;
+  string activationToken = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
+}
+
+message HeartBeatRequest {
+  string agentId = 1;
+  google.protobuf.Timestamp sentAt = 2;
+}
+
+service AgentService {
+  rpc HeartBeat(HeartBeatRequest) returns (AgentModel);
+}
