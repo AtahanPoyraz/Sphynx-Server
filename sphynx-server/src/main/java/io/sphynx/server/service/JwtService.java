@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.repository.UserRepository;
+import io.sphynx.server.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -37,31 +39,23 @@ public class JwtService {
         this.userRepository = userRepository;
     }
 
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.jwtSecretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
 
-    public String generateToken(String email, String requiredType) {
-        UserModel user = this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
-
+    public String generateToken(UUID id, String requiredType) {
+        SecretKey secretKey = JwtUtil.getSignInKey(this.jwtSecretKey);
         return switch (requiredType.toLowerCase()) {
-            case ("auth") -> Jwts.builder()
-                    .subject(user.getUserId().toString())
-                    .claim("type", "auth")
-                    .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + this.jwtAuthExpiration))
-                    .signWith(getSignInKey())
-                    .compact();
+            case ("auth") -> JwtUtil.generateToken(
+                    id.toString(),
+                    Map.of("type", "auth"),
+                    this.jwtAuthExpiration,
+                    secretKey
+            );
 
-            case ("reset") -> Jwts.builder()
-                    .subject(user.getUserId().toString())
-                    .claim("type", "reset")
-                    .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + this.jwtResetExpiration))
-                    .signWith(getSignInKey())
-                    .compact();
+            case ("reset") -> JwtUtil.generateToken(
+                    id.toString(),
+                    Map.of("type", "reset"),
+                    this.jwtResetExpiration,
+                    secretKey
+            );
 
             default -> throw new IllegalArgumentException("Invalid token type");
         };
@@ -72,14 +66,10 @@ public class JwtService {
             throw new IllegalArgumentException("Invalid token");
         }
 
-        Claims claims = Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
+        SecretKey secretKey = JwtUtil.getSignInKey(this.jwtSecretKey);
+        Claims claims = JwtUtil.extractClaimsFromToken(token, secretKey);
         String tokenType = claims.get("type", String.class);
-        if (!requiredType.equals(tokenType)) {
+        if (!requiredType.toLowerCase().equals(tokenType)) {
             throw new IllegalArgumentException("Invalid token type");
         }
 
@@ -99,13 +89,9 @@ public class JwtService {
                 return false;
             }
 
-            Claims claims = Jwts.parser()
-                    .verifyWith(getSignInKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            if (!requiredType.equals(claims.get("type", String.class))) {
+            SecretKey secretKey = JwtUtil.getSignInKey(this.jwtSecretKey);
+            Claims claims = JwtUtil.extractClaimsFromToken(token, secretKey);
+            if (!requiredType.toLowerCase().equals(claims.get("type", String.class))) {
                 return false;
             }
 

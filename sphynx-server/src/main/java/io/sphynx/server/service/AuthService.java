@@ -27,8 +27,8 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void authenticate(SignInRequest signInRequest) {
-        this.userRepository.findByEmail(signInRequest.getEmail())
+    public UserModel authenticate(SignInRequest signInRequest) {
+        return this.userRepository.findByEmail(signInRequest.getEmail())
                 .filter(user -> this.passwordEncoder.matches(signInRequest.getPassword(), user.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }

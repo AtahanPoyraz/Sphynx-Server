@@ -92,26 +92,31 @@ public class UserModel implements UserDetails {
                 .collect(Collectors.toSet());
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return this.email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return this.isAccountNonExpired;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return this.isAccountNonLocked;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return this.isCredentialsNonExpired;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return this.isEnabled;

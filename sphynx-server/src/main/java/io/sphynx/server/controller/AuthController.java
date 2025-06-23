@@ -58,8 +58,8 @@ public class AuthController {
             @Valid @RequestBody SignInRequest signInRequest
     ) {
         try {
-            this.authService.authenticate(signInRequest);
-            String token = this.jwtService.generateToken(signInRequest.getEmail(), "auth");
+            UserModel user =  this.authService.authenticate(signInRequest);
+            String token = this.jwtService.generateToken(user.getUserId(), "auth");
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
