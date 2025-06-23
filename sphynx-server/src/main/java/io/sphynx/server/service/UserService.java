@@ -29,12 +29,12 @@ public class UserService {
 
     public UserModel getUserByUserId(UUID userId) {
         return this.userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User cannot found with id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
     }
 
     public UserModel getUserByEmail(String email) {
         return this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User cannot found with email: " + email));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
     }
 
     public Page<UserModel> getAllUsers(Pageable pageable) {
@@ -63,7 +63,7 @@ public class UserService {
 
     public UserModel updateUserByUserId(UUID userId, UpdateUserByIdRequest updateUserByIdRequest) {
         UserModel user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User cannot found with id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         if (updateUserByIdRequest.getFirstName() != null) {
             user.setFirstName(updateUserByIdRequest.getFirstName());
@@ -110,7 +110,7 @@ public class UserService {
 
     public void deleteUserByUserId(UUID userId) {
         if (!this.userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("User cannot found with id: " + userId);
+            throw new EntityNotFoundException("User not found with id: " + userId);
         }
 
         this.userRepository.deleteById(userId);

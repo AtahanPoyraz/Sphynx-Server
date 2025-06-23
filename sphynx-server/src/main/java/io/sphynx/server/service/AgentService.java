@@ -36,7 +36,7 @@ public class AgentService {
 
     public AgentModel getAgentByAgentId(UUID agentId) {
         return this.agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent cannot found with id: " + agentId));
+                .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
     }
 
     public List<AgentModel> getAgentByAgentName(String agentName) {
@@ -53,7 +53,7 @@ public class AgentService {
 
     public AgentModel activateAgent(ActivateAgentRequest activateAgentRequest) {
         AgentModel agent = this.agentRepository.findByActivationToken(activateAgentRequest.getActivationToken())
-                .orElseThrow(() -> new EntityNotFoundException("Agent cannot found with token: " + activateAgentRequest.getActivationToken()));
+                .orElseThrow(() -> new EntityNotFoundException("Agent not found with token: " + activateAgentRequest.getActivationToken()));
 
         agent.setAgentStatus(AgentStatus.ACTIVE);
         return this.agentRepository.save(agent);
@@ -62,7 +62,7 @@ public class AgentService {
     public AgentModel createAgent(CreateAgentRequest createAgentRequest) {
         Optional<UserModel> user = this.userRepository.findById(createAgentRequest.getUserId());
         if (user.isEmpty()) {
-            throw new EntityNotFoundException("User cannot found with id: " + createAgentRequest.getUserId());
+            throw new EntityNotFoundException("User not found with id: " + createAgentRequest.getUserId());
         }
 
         if (Validator.isValidAgentName(createAgentRequest.getAgentName())) {
@@ -80,7 +80,7 @@ public class AgentService {
 
     public AgentModel refreshActivationToken(UUID agentId) {
         AgentModel agent = this.agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent cannot found with id: " + agentId));
+                .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 
         String newActivationToken = Generator.GenerateRandomString(32);
         agent.setActivationToken(newActivationToken);
@@ -90,7 +90,7 @@ public class AgentService {
 
     public AgentModel updateAgentByAgentId(UUID agentId, UpdateAgentByIdRequest updateAgentByIdRequest) {
         AgentModel agent = this.agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent cannot found with id: " + agentId));
+                .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 
         if (Validator.isValidAgentName(updateAgentByIdRequest.getAgentName())) {
             throw new IllegalArgumentException("Agent name is invalid. Only letters, digits, underscores and hyphens are allowed.");
@@ -109,7 +109,7 @@ public class AgentService {
 
     public void deleteAgentByAgentId(UUID agentId) {
         if(!this.agentRepository.existsById(agentId)) {
-            throw new EntityNotFoundException("Agent cannot found with id: " + agentId);
+            throw new EntityNotFoundException("Agent not found with id: " + agentId);
         }
 
         this.agentRepository.deleteById(agentId);

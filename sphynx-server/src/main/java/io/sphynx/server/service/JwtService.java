@@ -44,7 +44,7 @@ public class JwtService {
 
     public String generateToken(String email, String requiredType) {
         UserModel user = this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User cannot found with email: " + email));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
 
         return switch (requiredType.toLowerCase()) {
             case ("auth") -> Jwts.builder()
@@ -68,7 +68,6 @@ public class JwtService {
     }
 
     public UserModel extractClaimsFromToken(String token, String requiredType) {
-        log.info("------------------------------------------------------o "  + requiredType);
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Invalid token");
         }
@@ -91,7 +90,7 @@ public class JwtService {
 
         UUID userId = UUID.fromString(subject);
         return this.userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User cannot found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     public boolean isTokenValid(String token, String requiredType) {
