@@ -1,4 +1,4 @@
-package io.sphynx.server.utils;
+package io.sphynx.server.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -9,7 +9,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
 
-public class JwtUtils {
+public class JwtTokenUtil {
     public static SecretKey getSignInKey(String jwtSecretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);

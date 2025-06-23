@@ -1,4 +1,4 @@
-package io.sphynx.server.utils;
+package io.sphynx.server.util;
 
 import java.security.SecureRandom;
 

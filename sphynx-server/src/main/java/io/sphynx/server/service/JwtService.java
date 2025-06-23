@@ -3,7 +3,7 @@ package io.sphynx.server.service;
 import io.jsonwebtoken.Claims;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.repository.UserRepository;
-import io.sphynx.server.utils.JwtUtils;
+import io.sphynx.server.util.JwtTokenUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +38,16 @@ public class JwtService {
 
 
     public String generateToken(UUID id, String requiredType) {
-        SecretKey secretKey = JwtUtils.getSignInKey(this.jwtSecretKey);
+        SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
         return switch (requiredType.toLowerCase()) {
-            case ("auth") -> JwtUtils.generateToken(
+            case ("auth") -> JwtTokenUtil.generateToken(
                     id.toString(),
                     Map.of("type", "auth"),
                     this.jwtAuthExpiration,
                     secretKey
             );
 
-            case ("reset") -> JwtUtils.generateToken(
+            case ("reset") -> JwtTokenUtil.generateToken(
                     id.toString(),
                     Map.of("type", "reset"),
                     this.jwtResetExpiration,
@@ -63,8 +63,8 @@ public class JwtService {
             throw new IllegalArgumentException("Invalid token");
         }
 
-        SecretKey secretKey = JwtUtils.getSignInKey(this.jwtSecretKey);
-        Claims claims = JwtUtils.extractClaimsFromToken(token, secretKey);
+        SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
+        Claims claims = JwtTokenUtil.extractClaimsFromToken(token, secretKey);
         String tokenType = claims.get("type", String.class);
         if (!requiredType.toLowerCase().equals(tokenType)) {
             throw new IllegalArgumentException("Invalid token type");
@@ -86,8 +86,8 @@ public class JwtService {
                 return false;
             }
 
-            SecretKey secretKey = JwtUtils.getSignInKey(this.jwtSecretKey);
-            Claims claims = JwtUtils.extractClaimsFromToken(token, secretKey);
+            SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
+            Claims claims = JwtTokenUtil.extractClaimsFromToken(token, secretKey);
             if (!requiredType.toLowerCase().equals(claims.get("type", String.class))) {
                 return false;
             }
