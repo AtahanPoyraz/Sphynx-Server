@@ -65,7 +65,7 @@ public class AgentService {
             throw new EntityNotFoundException("User cannot found with id: " + createAgentRequest.getUserId());
         }
 
-        if (!Validator.isValidAgentName(createAgentRequest.getAgentName())) {
+        if (Validator.isValidAgentName(createAgentRequest.getAgentName())) {
             throw new IllegalArgumentException("Agent name is invalid. Only letters, digits, underscores and hyphens are allowed.");
         }
 
@@ -92,7 +92,7 @@ public class AgentService {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent cannot found with id: " + agentId));
 
-        if (!Validator.isValidAgentName(updateAgentByIdRequest.getAgentName())) {
+        if (Validator.isValidAgentName(updateAgentByIdRequest.getAgentName())) {
             throw new IllegalArgumentException("Agent name is invalid. Only letters, digits, underscores and hyphens are allowed.");
         }
 
