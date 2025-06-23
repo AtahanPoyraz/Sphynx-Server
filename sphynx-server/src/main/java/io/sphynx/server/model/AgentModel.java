@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import io.sphynx.server.model.enums.AgentStatus;
 import io.sphynx.server.model.pojos.AgentConfig;
-import io.sphynx.server.util.Generator;
+import io.sphynx.server.utils.Generator;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

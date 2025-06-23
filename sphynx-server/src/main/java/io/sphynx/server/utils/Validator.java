@@ -1,4 +1,4 @@
-package io.sphynx.server.util;
+package io.sphynx.server.utils;
 
 public class Validator {
     public static boolean isValidAgentName(String agentName) {
