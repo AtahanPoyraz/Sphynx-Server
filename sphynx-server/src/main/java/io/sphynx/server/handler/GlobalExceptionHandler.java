@@ -76,4 +76,17 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<GenericResponse<?>> handleRuntimeException(
+            RuntimeException e
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new GenericResponse<>(
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage(),
+                        null
+                        )
+                );
+    }
 }

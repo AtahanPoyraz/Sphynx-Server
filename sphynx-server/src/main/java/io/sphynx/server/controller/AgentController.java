@@ -41,9 +41,9 @@ public class AgentController {
             AgentModel agent = this.agentService.refreshActivationToken(agentId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
-                                    HttpStatus.OK.value(),
-                                    "Agent activation token refreshed successfully",
-                                    agent.getActivationToken()
+                            HttpStatus.OK.value(),
+                            "Agent activation token refreshed successfully",
+                            agent.getActivationToken()
                             )
                     );
 
