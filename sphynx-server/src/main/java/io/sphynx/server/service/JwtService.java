@@ -1,9 +1,11 @@
 package io.sphynx.server.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.repository.UserRepository;
-import io.sphynx.server.util.JwtTokenUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,18 +38,40 @@ public class JwtService {
         this.userRepository = userRepository;
     }
 
+    private SecretKey getSignInKey(String jwtSecretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String generateToken(String subject, Map<String, Object> claims, Long expireTime, SecretKey secretKey) {
+        return Jwts.builder()
+                .subject(subject)
+                .claims(claims)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expireTime))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    private Claims extractClaimsFromToken(String token, SecretKey secretKey) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 
     public String generateToken(UUID id, String requiredType) {
-        SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
+        SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
         return switch (requiredType.toLowerCase()) {
-            case ("auth") -> JwtTokenUtil.generateToken(
+            case ("auth") -> this.generateToken(
                     id.toString(),
                     Map.of("type", "auth"),
                     this.jwtAuthExpiration,
                     secretKey
             );
 
-            case ("reset") -> JwtTokenUtil.generateToken(
+            case ("reset") -> this.generateToken(
                     id.toString(),
                     Map.of("type", "reset"),
                     this.jwtResetExpiration,
@@ -63,8 +87,8 @@ public class JwtService {
             throw new IllegalArgumentException("Invalid token");
         }
 
-        SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
-        Claims claims = JwtTokenUtil.extractClaimsFromToken(token, secretKey);
+        SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
+        Claims claims = this.extractClaimsFromToken(token, secretKey);
         String tokenType = claims.get("type", String.class);
         if (!requiredType.toLowerCase().equals(tokenType)) {
             throw new IllegalArgumentException("Invalid token type");
@@ -86,8 +110,8 @@ public class JwtService {
                 return false;
             }
 
-            SecretKey secretKey = JwtTokenUtil.getSignInKey(this.jwtSecretKey);
-            Claims claims = JwtTokenUtil.extractClaimsFromToken(token, secretKey);
+            SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
+            Claims claims = this.extractClaimsFromToken(token, secretKey);
             if (!requiredType.toLowerCase().equals(claims.get("type", String.class))) {
                 return false;
             }
