@@ -182,11 +182,11 @@ public class AgentController {
 
     @PatchMapping("/update")
     public ResponseEntity<GenericResponse<?>> updateAgentById(
-            @RequestParam UUID id,
+            @RequestParam UUID agentId,
             @Valid @RequestBody UpdateAgentByIdRequest updateAgentByIdRequest
     ) {
         try {
-            AgentModel agent = this.agentService.updateAgentByAgentId(id, updateAgentByIdRequest);
+            AgentModel agent = this.agentService.updateAgentByAgentId(agentId, updateAgentByIdRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
@@ -208,10 +208,10 @@ public class AgentController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<GenericResponse<?>> deleteAgentById(
-            @RequestParam UUID id
+            @RequestParam UUID agentId
     ) {
         try {
-            this.agentService.deleteAgentByAgentId(id);
+            this.agentService.deleteAgentByAgentId(agentId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),

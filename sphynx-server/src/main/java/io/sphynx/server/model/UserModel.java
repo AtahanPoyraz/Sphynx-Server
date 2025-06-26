@@ -58,6 +58,7 @@ public class UserModel implements UserDetails {
     @Column(name = "is_credentials_non_expired", nullable = false)
     private Boolean isCredentialsNonExpired;
 
+    @JsonIgnore
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
@@ -98,25 +99,21 @@ public class UserModel implements UserDetails {
         return this.email;
     }
 
-    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return this.isAccountNonExpired;
     }
 
-    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return this.isAccountNonLocked;
     }
 
-    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return this.isCredentialsNonExpired;
     }
 
-    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return this.isEnabled;

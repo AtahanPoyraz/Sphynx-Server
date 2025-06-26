@@ -146,11 +146,11 @@ public class UserController {
 
     @PatchMapping("/update")
     public ResponseEntity<GenericResponse<?>> updateUserById(
-            @RequestParam UUID id,
+            @RequestParam UUID userId,
             @Valid @RequestBody UpdateUserByIdRequest updateUserByIdRequest
     ) {
         try {
-            UserModel user = this.userService.updateUserByUserId(id, updateUserByIdRequest);
+            UserModel user = this.userService.updateUserByUserId(userId, updateUserByIdRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
@@ -172,10 +172,10 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<GenericResponse<?>> deleteUserById(
-            @RequestParam UUID id
+            @RequestParam UUID userId
     ) {
         try {
-            this.userService.deleteUserByUserId(id);
+            this.userService.deleteUserByUserId(userId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
