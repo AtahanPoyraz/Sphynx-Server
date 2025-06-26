@@ -1,6 +1,7 @@
 package io.sphynx.server.config;
 
 import io.sphynx.server.model.UserModel;
+import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.JwtService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
@@ -44,20 +45,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             final String token = authHeader.substring(7);
 
-            if (!this.jwtService.isTokenValid(token, "auth")) {
+            if (!this.jwtService.isTokenValid(token, TokenType.AUTH)) {
                 SecurityContextHolder.clearContext();
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
                 return;
             }
 
-            UserModel user = this.jwtService.extractClaimsFromToken(token, "auth");
+            UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities()
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             filterChain.doFilter(request, response);
 
         } catch (EntityNotFoundException e) {

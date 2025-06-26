@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.sphynx.server.model.UserModel;
+import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -61,42 +62,29 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String generateToken(UUID id, String requiredType) {
+    public String generateToken(UUID id, TokenType tokenType) {
         SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
-        return switch (requiredType.toLowerCase()) {
-            case ("auth") -> this.generateToken(
-                    id.toString(),
-                    Map.of("type", "auth"),
-                    this.jwtAuthExpiration,
-                    secretKey
-            );
-
-            case ("reset") -> this.generateToken(
-                    id.toString(),
-                    Map.of("type", "reset"),
-                    this.jwtResetExpiration,
-                    secretKey
-            );
-
-            default -> throw new IllegalArgumentException("Invalid token type");
+        return switch (tokenType) {
+            case AUTH -> this.generateToken(id.toString(), Map.of("type", tokenType.name()), this.jwtAuthExpiration, secretKey);
+            case RESET -> this.generateToken(id.toString(), Map.of("type", tokenType.name()), this.jwtResetExpiration, secretKey);
         };
     }
 
-    public UserModel extractClaimsFromToken(String token, String requiredType) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Invalid token");
+    public UserModel extractUserFromToken(String token, TokenType tokenType) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
         }
 
         SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
         Claims claims = this.extractClaimsFromToken(token, secretKey);
-        String tokenType = claims.get("type", String.class);
-        if (!requiredType.toLowerCase().equals(tokenType)) {
-            throw new IllegalArgumentException("Invalid token type");
+
+        if (!tokenType.name().equals(claims.get("type", String.class))) {
+            throw new IllegalArgumentException("Token type mismatch");
         }
 
         String subject = claims.getSubject();
-        if (subject == null || subject.isEmpty()) {
-            throw new IllegalArgumentException("Invalid token");
+        if (subject == null || subject.isBlank()) {
+            throw new IllegalArgumentException("Token subject (user ID) is missing");
         }
 
         UUID userId = UUID.fromString(subject);
@@ -104,21 +92,25 @@ public class JwtService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
-    public boolean isTokenValid(String token, String requiredType) {
+    public boolean isTokenValid(String token, TokenType tokenType) {
         try {
-            if (token == null || token.isEmpty()) {
+            if (token == null || token.isBlank()) {
                 return false;
             }
 
             SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
             Claims claims = this.extractClaimsFromToken(token, secretKey);
-            if (!requiredType.toLowerCase().equals(claims.get("type", String.class))) {
+
+            String typeClaim = claims.get("type", String.class);
+            if (!tokenType.name().equalsIgnoreCase(typeClaim)) {
                 return false;
             }
 
-            return claims.getExpiration().after(new Date());
+            Date expiration = claims.getExpiration();
+            return expiration != null && expiration.after(new Date());
 
         } catch (Exception e) {
+            log.debug("Invalid token: {}", e.getMessage());
             return false;
         }
     }

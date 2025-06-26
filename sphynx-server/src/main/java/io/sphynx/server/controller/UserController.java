@@ -4,6 +4,7 @@ import io.sphynx.server.dto.GenericResponse;
 import io.sphynx.server.dto.user.CreateUserRequest;
 import io.sphynx.server.dto.user.UpdateUserByIdRequest;
 import io.sphynx.server.model.UserModel;
+import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.JwtService;
 import io.sphynx.server.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public class UserController {
             }
 
             String token = authHeader.substring(7);
-            UserModel user = this.jwtService.extractClaimsFromToken(token, "auth");
+            UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),

@@ -5,6 +5,7 @@ import io.sphynx.server.dto.auth.ResetPasswordRequest;
 import io.sphynx.server.dto.auth.SignInRequest;
 import io.sphynx.server.dto.auth.SignUpRequest;
 import io.sphynx.server.model.UserModel;
+import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.AuthService;
 import io.sphynx.server.service.JwtService;
 import jakarta.validation.Valid;
@@ -33,12 +34,13 @@ public class AuthController {
             @Valid @RequestBody SignUpRequest signUpRequest
     ) {
         try {
-            this.authService.register(signUpRequest);
+            UserModel user = this.authService.register(signUpRequest);
+            String token = jwtService.generateToken(user.getUserId(), TokenType.AUTH);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
+                            HttpStatus.CREATED.value(),
                             "User signed up successfully",
-                            null
+                            token
                             )
                     );
 
@@ -59,7 +61,7 @@ public class AuthController {
     ) {
         try {
             UserModel user =  this.authService.authenticate(signInRequest);
-            String token = this.jwtService.generateToken(user.getUserId(), "auth");
+            String token = this.jwtService.generateToken(user.getUserId(), TokenType.AUTH);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
@@ -85,7 +87,7 @@ public class AuthController {
             @Valid @RequestBody ResetPasswordRequest resetPasswordRequest
     ) {
         try {
-            if (jwtService.isTokenValid(resetToken, "reset")) {
+            if (!jwtService.isTokenValid(resetToken, TokenType.RESET)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new GenericResponse<>(
                                 HttpStatus.BAD_REQUEST.value(),
@@ -95,7 +97,7 @@ public class AuthController {
                         );
             }
 
-            UserModel user = this.jwtService.extractClaimsFromToken(resetToken, "reset");
+            UserModel user = this.jwtService.extractUserFromToken(resetToken, TokenType.RESET);
             this.authService.resetPassword(user, resetPasswordRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(

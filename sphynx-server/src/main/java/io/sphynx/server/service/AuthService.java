@@ -33,7 +33,7 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
 
-    public void register(SignUpRequest signUpRequest) {
+    public UserModel register(SignUpRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -50,7 +50,7 @@ public class AuthService {
         user.setIsCredentialsNonExpired(true);
         user.setRoles(EnumSet.of(UserRole.ROLE_USER));
 
-        this.userRepository.save(user);
+        return this.userRepository.save(user);
     }
 
     public void resetPassword(UserModel user, ResetPasswordRequest resetPasswordRequest) {

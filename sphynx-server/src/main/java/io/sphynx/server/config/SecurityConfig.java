@@ -25,7 +25,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/agent/activate").hasRole("AGENT")
+                        .requestMatchers("/api/v1/agent/activate").permitAll()
                         .requestMatchers("/api/v1/agent/**").authenticated()
                         .requestMatchers("/api/v1/user/me").authenticated()
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
