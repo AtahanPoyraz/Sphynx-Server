@@ -25,13 +25,13 @@ public class AgentScheduler {
     public void checkAndDeactivateAgents() {
         try {
             LocalDateTime tenSecondsAgo = LocalDateTime.now().minusSeconds(10);
-            List<AgentModel> outdatedAgents = agentRepository.findByUpdatedAtBeforeAndAgentStatusNot(
+            List<AgentModel> outdatedAgents = agentRepository.findByUpdatedAtBeforeAndStatusNot(
                     tenSecondsAgo,
                     AgentStatus.INACTIVE
             );
 
             if (!outdatedAgents.isEmpty()) {
-                outdatedAgents.forEach(agent -> agent.setAgentStatus(AgentStatus.INACTIVE));
+                outdatedAgents.forEach(agent -> agent.setStatus(AgentStatus.INACTIVE));
                 this.agentRepository.saveAll(outdatedAgents);
                 log.info("Deactivated {} agents due to inactivity.", outdatedAgents.size());
             }

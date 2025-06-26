@@ -48,5 +48,4 @@ public class CreateUserRequest {
 
     @NotNull(message = "roles flag cannot be null")
     private Set<UserRole> roles;
-
 }

@@ -27,16 +27,16 @@ public class AgentModel {
     @Column(name = "agent_id", nullable = false, updatable = false)
     private UUID agentId;
 
-    @Column(name = "agent_name", nullable = false)
-    private String agentName;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "agent_status", nullable = false)
-    private AgentStatus agentStatus;
+    @Column(name = "status", nullable = false)
+    private AgentStatus status;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "agent_config", columnDefinition = "jsonb")
-    private AgentConfig agentConfig;
+    @Column(name = "config", columnDefinition = "jsonb")
+    private AgentConfig config;
 
     @Column(name = "activation_token", nullable = false)
     private String activationToken;

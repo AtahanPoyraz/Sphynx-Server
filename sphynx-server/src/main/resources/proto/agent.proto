@@ -36,5 +36,5 @@ message HeartBeatRequest {
 }
 
 service AgentService {
-  rpc HeartBeat(HeartBeatRequest) returns (AgentModel);
+  rpc HeartBeat(HeartBeatRequest) returns(AgentModel);
 }

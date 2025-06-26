@@ -40,7 +40,7 @@ public class AgentService {
     }
 
     public List<AgentModel> getAgentByAgentName(String agentName) {
-        return this.agentRepository.findByAgentName(agentName);
+        return this.agentRepository.findByName(agentName);
     }
 
     public List<AgentModel> getAgentsByUserId(UUID agentId) {
@@ -55,7 +55,7 @@ public class AgentService {
         AgentModel agent = this.agentRepository.findByActivationToken(activateAgentRequest.getActivationToken())
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with token: " + activateAgentRequest.getActivationToken()));
 
-        agent.setAgentStatus(AgentStatus.ACTIVE);
+        agent.setStatus(AgentStatus.ACTIVE);
         return this.agentRepository.save(agent);
     }
 
@@ -70,9 +70,9 @@ public class AgentService {
         }
 
         AgentModel agent = new AgentModel();
-        agent.setAgentName(createAgentRequest.getAgentName());
-        agent.setAgentStatus(AgentStatus.INACTIVE);
-        agent.setAgentConfig(createAgentRequest.getAgentConfig());
+        agent.setName(createAgentRequest.getAgentName());
+        agent.setStatus(AgentStatus.INACTIVE);
+        agent.setConfig(createAgentRequest.getAgentConfig());
         agent.setUser(user.get());
 
         return this.agentRepository.save(agent);
@@ -97,11 +97,11 @@ public class AgentService {
         }
 
         if (updateAgentByIdRequest.getAgentName() != null) {
-            agent.setAgentName(updateAgentByIdRequest.getAgentName());
+            agent.setName(updateAgentByIdRequest.getAgentName());
         }
 
         if (updateAgentByIdRequest.getAgentConfig() != null) {
-            agent.setAgentConfig(updateAgentByIdRequest.getAgentConfig());
+            agent.setConfig(updateAgentByIdRequest.getAgentConfig());
         }
 
         return this.agentRepository.save(agent);
