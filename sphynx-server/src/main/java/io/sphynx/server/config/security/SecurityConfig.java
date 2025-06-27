@@ -1,4 +1,4 @@
-package io.sphynx.server.config;
+package io.sphynx.server.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
