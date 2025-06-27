@@ -9,6 +9,8 @@ import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.AuthService;
 import io.sphynx.server.service.JwtService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthService authService;
     private final JwtService jwtService;
 
@@ -36,7 +40,7 @@ public class AuthController {
         try {
             UserModel user = this.authService.register(signUpRequest);
             String token = jwtService.generateToken(user.getUserId(), TokenType.AUTH);
-            return ResponseEntity.status(HttpStatus.OK)
+            return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new GenericResponse<>(
                             HttpStatus.CREATED.value(),
                             "User signed up successfully",
@@ -45,6 +49,7 @@ public class AuthController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while creating the user:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -71,6 +76,7 @@ public class AuthController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while authenticating the user:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -108,6 +114,7 @@ public class AuthController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while resetting password the user:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),

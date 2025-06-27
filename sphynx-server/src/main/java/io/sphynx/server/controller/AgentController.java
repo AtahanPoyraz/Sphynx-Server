@@ -9,6 +9,8 @@ import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.UserRole;
 import io.sphynx.server.service.AgentService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/agent")
 public class AgentController {
+    private static final Logger logger = LoggerFactory.getLogger(AgentController.class);
+
     private final AgentService agentService;
 
     @Autowired
@@ -48,10 +52,11 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while refreshing activation token:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while fetching the agents: " + e.getMessage(),
+                            "An error occurred while refreshing activation token: " + e.getMessage(),
                             null
                             )
                     );
@@ -120,6 +125,7 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while fetching the agents:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -145,10 +151,11 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while activating the agent:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while creating the agent: " + e.getMessage(),
+                            "An error occurred while activating the agent: " + e.getMessage(),
                             null
                             )
                     );
@@ -170,6 +177,7 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while creating the agent:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -196,6 +204,7 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while updating the agent:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -221,6 +230,7 @@ public class AgentController {
                     );
 
         } catch (Exception e) {
+            logger.error("An error occurred while deleting the agent:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
