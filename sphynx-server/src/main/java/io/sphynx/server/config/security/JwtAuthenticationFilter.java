@@ -81,5 +81,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String extractToken(String authHeader) {
         return authHeader.substring(7);
     }
-
 }

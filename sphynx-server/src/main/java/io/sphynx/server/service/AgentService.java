@@ -9,6 +9,7 @@ import io.sphynx.server.model.enums.AgentStatus;
 import io.sphynx.server.repository.AgentRepository;
 import io.sphynx.server.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,7 @@ public class AgentService {
         return this.agentRepository.findAll(pageable);
     }
 
+    @Transactional
     public AgentModel activateAgent(ActivateAgentRequest activateAgentRequest) {
         AgentModel agent = this.agentRepository.findByActivationToken(activateAgentRequest.getActivationToken())
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with token: " + activateAgentRequest.getActivationToken()));
@@ -57,6 +59,7 @@ public class AgentService {
         return this.agentRepository.save(agent);
     }
 
+    @Transactional
     public AgentModel createAgent(CreateAgentRequest createAgentRequest) {
         Optional<UserModel> user = this.userRepository.findById(createAgentRequest.getUserId());
         if (user.isEmpty()) {
@@ -76,6 +79,7 @@ public class AgentService {
         return this.agentRepository.save(agent);
     }
 
+    @Transactional
     public AgentModel refreshActivationToken(UUID agentId) {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
@@ -83,6 +87,7 @@ public class AgentService {
         return this.agentRepository.save(agent);
     }
 
+    @Transactional
     public AgentModel updateAgentByAgentId(UUID agentId, UpdateAgentByIdRequest updateAgentByIdRequest) {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
@@ -102,6 +107,7 @@ public class AgentService {
         return this.agentRepository.save(agent);
     }
 
+    @Transactional
     public void deleteAgentByAgentId(UUID agentId) {
         if(!this.agentRepository.existsById(agentId)) {
             throw new EntityNotFoundException("Agent not found with id: " + agentId);

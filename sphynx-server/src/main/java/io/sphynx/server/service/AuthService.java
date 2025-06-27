@@ -7,6 +7,7 @@ import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.AccountType;
 import io.sphynx.server.model.enums.UserRole;
 import io.sphynx.server.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
 
+    @Transactional
     public UserModel register(SignUpRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
@@ -53,6 +55,7 @@ public class AuthService {
         return this.userRepository.save(user);
     }
 
+    @Transactional
     public void resetPassword(UserModel user, ResetPasswordRequest resetPasswordRequest) {
         user.setPassword(this.passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
         this.userRepository.save(user);

@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/agent/**").authenticated()
                         .requestMatchers("/api/v1/user/me").authenticated()
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

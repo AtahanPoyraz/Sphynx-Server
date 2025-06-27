@@ -5,6 +5,7 @@ import io.sphynx.server.dto.user.UpdateUserByIdRequest;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,7 @@ public class UserService {
         return this.userRepository.findAll(pageable);
     }
 
+    @Transactional
     public UserModel createUser(CreateUserRequest createUserRequest) {
         if (this.userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new IllegalArgumentException("Email already registered");
@@ -61,6 +63,7 @@ public class UserService {
         return this.userRepository.save(user);
     }
 
+    @Transactional
     public UserModel updateUserByUserId(UUID userId, UpdateUserByIdRequest updateUserByIdRequest) {
         UserModel user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -108,6 +111,7 @@ public class UserService {
         return this.userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUserByUserId(UUID userId) {
         if (!this.userRepository.existsById(userId)) {
             throw new EntityNotFoundException("User not found with id: " + userId);
