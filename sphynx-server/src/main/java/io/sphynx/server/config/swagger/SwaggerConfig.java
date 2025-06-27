@@ -1,5 +1,6 @@
 package io.sphynx.server.config.swagger;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -29,8 +30,9 @@ public class SwaggerConfig {
                                 .name("GNU General Public License v3.0")
                                 .url("https://www.gnu.org/licenses/gpl-3.0.en.html"))
                 )
+
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new io.swagger.v3.oas.models.Components()
+                .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
                                         .name(securitySchemeName)
