@@ -39,29 +39,6 @@ public class JwtService {
         this.userRepository = userRepository;
     }
 
-    private SecretKey getSignInKey(String jwtSecretKey) {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    private String generateToken(String subject, Map<String, Object> claims, Long expireTime, SecretKey secretKey) {
-        return Jwts.builder()
-                .subject(subject)
-                .claims(claims)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expireTime))
-                .signWith(secretKey)
-                .compact();
-    }
-
-    private Claims extractClaimsFromToken(String token, SecretKey secretKey) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
-
     public String generateToken(UUID id, TokenType tokenType) {
         SecretKey secretKey = this.getSignInKey(this.jwtSecretKey);
         return switch (tokenType) {
@@ -113,5 +90,28 @@ public class JwtService {
             log.debug("Invalid token: {}", e.getMessage());
             return false;
         }
+    }
+
+    private SecretKey getSignInKey(String jwtSecretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String generateToken(String subject, Map<String, Object> claims, Long expireTime, SecretKey secretKey) {
+        return Jwts.builder()
+                .subject(subject)
+                .claims(claims)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expireTime))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    private Claims extractClaimsFromToken(String token, SecretKey secretKey) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

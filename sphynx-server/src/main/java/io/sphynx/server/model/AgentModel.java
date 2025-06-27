@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import io.sphynx.server.model.enums.AgentStatus;
 import io.sphynx.server.model.pojos.AgentConfig;
-import io.sphynx.server.util.Generator;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -56,7 +55,6 @@ public class AgentModel {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
-        this.activationToken = Generator.GenerateRandomString(32);
     }
 
     @PreUpdate

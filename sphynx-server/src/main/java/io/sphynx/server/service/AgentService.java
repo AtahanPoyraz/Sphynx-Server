@@ -8,8 +8,6 @@ import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.AgentStatus;
 import io.sphynx.server.repository.AgentRepository;
 import io.sphynx.server.repository.UserRepository;
-import io.sphynx.server.util.Generator;
-import io.sphynx.server.util.Validator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,7 +63,7 @@ public class AgentService {
             throw new EntityNotFoundException("User not found with id: " + createAgentRequest.getUserId());
         }
 
-        if (Validator.isValidAgentName(createAgentRequest.getAgentName())) {
+        if (!this.isValidAgentName(createAgentRequest.getAgentName())) {
             throw new IllegalArgumentException("Agent name is invalid. Only letters, digits, underscores and hyphens are allowed.");
         }
 
@@ -82,9 +80,6 @@ public class AgentService {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 
-        String newActivationToken = Generator.GenerateRandomString(32);
-        agent.setActivationToken(newActivationToken);
-
         return this.agentRepository.save(agent);
     }
 
@@ -92,7 +87,7 @@ public class AgentService {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 
-        if (Validator.isValidAgentName(updateAgentByIdRequest.getAgentName())) {
+        if (this.isValidAgentName(updateAgentByIdRequest.getAgentName())) {
             throw new IllegalArgumentException("Agent name is invalid. Only letters, digits, underscores and hyphens are allowed.");
         }
 
@@ -113,5 +108,9 @@ public class AgentService {
         }
 
         this.agentRepository.deleteById(agentId);
+    }
+
+    private boolean isValidAgentName(String agentName) {
+        return agentName != null && !agentName.isEmpty() && agentName.matches("^[a-zA-Z0-9_-]+$");
     }
 }
