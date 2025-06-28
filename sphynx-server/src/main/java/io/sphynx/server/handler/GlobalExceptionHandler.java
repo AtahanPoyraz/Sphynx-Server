@@ -43,22 +43,8 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<GenericResponse<?>> handleEntityNotFoundException(
-            EntityNotFoundException e
-    ) {
-        logger.warn("Entity not found: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new GenericResponse<>(
-                        HttpStatus.NOT_FOUND.value(),
-                        e.getMessage(),
-                        null
-                        )
-                );
-    }
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<GenericResponse<?>> handleJsonParseError(
+    public ResponseEntity<GenericResponse<?>> handleJsonParseException(
             HttpMessageNotReadableException e
     ) {
         logger.error("Invalid JSON format", e);
@@ -67,6 +53,20 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(),
                         "Invalid JSON format for one of the fields. Please provide a valid object.",
                         null
+                        )
+                );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<GenericResponse<?>> handleEntityNotFoundException(
+            EntityNotFoundException e
+    ) {
+        logger.warn("Entity not found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new GenericResponse<>(
+                                HttpStatus.NOT_FOUND.value(),
+                                e.getMessage(),
+                                null
                         )
                 );
     }
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<GenericResponse<?>> handleAllExceptions(Exception e) {
+    public ResponseEntity<GenericResponse<?>> handleExceptions(Exception e) {
         logger.error("An error occurred", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GenericResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error", null));
