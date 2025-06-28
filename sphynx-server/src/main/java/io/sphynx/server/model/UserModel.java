@@ -93,7 +93,6 @@ public class UserModel implements UserDetails {
                 .collect(Collectors.toSet());
     }
 
-    @JsonIgnore
     @Override
     public String getUsername() {
         return this.email;
