@@ -41,26 +41,14 @@ public class AgentController {
     public ResponseEntity<GenericResponse<?>> updateActivationToken(
             @RequestParam UUID agentId
     ) {
-        try {
-            AgentModel agent = this.agentService.refreshActivationToken(agentId);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "Agent activation token refreshed successfully",
-                            agent.getActivationToken()
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while refreshing activation token:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while refreshing activation token: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        AgentModel agent = this.agentService.refreshActivationToken(agentId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Agent activation token refreshed successfully",
+                        agent.getActivationToken()
+                        )
+                );
     }
 
     @GetMapping("/get")
@@ -71,121 +59,85 @@ public class AgentController {
             @ParameterObject Pageable pageable,
             @AuthenticationPrincipal UserModel currentUser
     ) {
-        try {
-            if (agentId != null) {
-                AgentModel agent = this.agentService.getAgentByAgentId(agentId);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new GenericResponse<>(
-                                HttpStatus.OK.value(),
-                                "Agent fetched successfully",
-                                agent
-                                )
-                        );
-            }
-
-            if (agentName != null && currentUser.getRoles().contains(UserRole.ROLE_ADMIN)) {
-                List<AgentModel> agents = this.agentService.getAgentByAgentName(agentName);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new GenericResponse<>(
-                                HttpStatus.OK.value(),
-                                "Agent fetched successfully",
-                                agents
-                                )
-                        );
-            }
-
-            if (userId != null) {
-                List<AgentModel> agents = this.agentService.getAgentsByUserId(userId);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new GenericResponse<>(
-                                HttpStatus.OK.value(),
-                                "Agents fetched successfully",
-                                agents
-                                )
-                        );
-            }
-
-            if (!currentUser.getRoles().contains(UserRole.ROLE_ADMIN)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(new GenericResponse<>(
-                                HttpStatus.FORBIDDEN.value(),
-                                "You are not authorized to access all agents.",
-                                null
-                                )
-                        );
-            }
-
-            Page<AgentModel> agents = this.agentService.getAllAgents(pageable);
+        if (agentId != null) {
+            AgentModel agent = this.agentService.getAgentByAgentId(agentId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
-                            "Agent list fetched successfully",
+                            "Agent fetched successfully",
+                            agent
+                            )
+                    );
+        }
+
+        if (agentName != null && currentUser.getRoles().contains(UserRole.ROLE_ADMIN)) {
+            List<AgentModel> agents = this.agentService.getAgentByAgentName(agentName);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new GenericResponse<>(
+                            HttpStatus.OK.value(),
+                            "Agent fetched successfully",
                             agents
                             )
                     );
+        }
 
-        } catch (Exception e) {
-            logger.error("An error occurred while fetching the agents:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        if (userId != null) {
+            List<AgentModel> agents = this.agentService.getAgentsByUserId(userId);
+            return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while fetching the agents: " + e.getMessage(),
+                            HttpStatus.OK.value(),
+                            "Agents fetched successfully",
+                            agents
+                            )
+                    );
+        }
+
+        if (!currentUser.getRoles().contains(UserRole.ROLE_ADMIN)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new GenericResponse<>(
+                            HttpStatus.FORBIDDEN.value(),
+                            "You are not authorized to access all agents.",
                             null
                             )
                     );
         }
+
+        Page<AgentModel> agents = this.agentService.getAllAgents(pageable);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Agent list fetched successfully",
+                        agents
+                        )
+                );
     }
 
     @PostMapping("/activate")
     public ResponseEntity<GenericResponse<?>> activateAgent(
             @Valid @RequestBody ActivateAgentRequest activateAgentRequest
     ) {
-        try {
-            AgentModel agent = this.agentService.activateAgent(activateAgentRequest);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "Agent activated successfully",
-                            agent
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while activating the agent:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while activating the agent: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        AgentModel agent = this.agentService.activateAgent(activateAgentRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Agent activated successfully",
+                        agent
+                        )
+                );
     }
 
     @PostMapping("/create")
     public ResponseEntity<GenericResponse<?>> createAgent(
             @Valid @RequestBody CreateAgentRequest createAgentRequest
     ) {
-        try {
-            AgentModel agent = this.agentService.createAgent(createAgentRequest);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new GenericResponse<>(
-                            HttpStatus.CREATED.value(),
-                            "Agent created successfully",
-                            agent
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while creating the agent:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while creating the agent: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        AgentModel agent = this.agentService.createAgent(createAgentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new GenericResponse<>(
+                        HttpStatus.CREATED.value(),
+                        "Agent created successfully",
+                        agent
+                        )
+                );
     }
 
     @PatchMapping("/update")
@@ -193,51 +145,27 @@ public class AgentController {
             @RequestParam UUID agentId,
             @Valid @RequestBody UpdateAgentByIdRequest updateAgentByIdRequest
     ) {
-        try {
-            AgentModel agent = this.agentService.updateAgentByAgentId(agentId, updateAgentByIdRequest);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "Agent updated successfully",
-                            agent
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while updating the agent:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while updating the agent: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        AgentModel agent = this.agentService.updateAgentByAgentId(agentId, updateAgentByIdRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Agent updated successfully",
+                        agent
+                        )
+                );
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<GenericResponse<?>> deleteAgentById(
             @RequestParam UUID agentId
     ) {
-        try {
-            this.agentService.deleteAgentByAgentId(agentId);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "Agent deleted successfully",
-                            null
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while deleting the agent:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while deleting the agent: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        this.agentService.deleteAgentByAgentId(agentId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Agent deleted successfully",
+                        null
+                        )
+                );
     }
 }

@@ -42,37 +42,26 @@ public class UserController {
     public ResponseEntity<GenericResponse<?>> me(
             HttpServletRequest servletRequest
     ) {
-        try {
-            String authHeader = servletRequest.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new GenericResponse<>(
-                                HttpStatus.UNAUTHORIZED.value(),
-                                "Authorization header is missing or invalid",
-                                null
-                        ));
-            }
-
-            String token = authHeader.substring(7);
-            UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
-            return ResponseEntity.status(HttpStatus.OK)
+        String authHeader = servletRequest.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "User fetched successfully",
-                            user
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while fetching the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                    "An error occurred while fetching the user: " + e.getMessage(),
-                                    null
+                            HttpStatus.UNAUTHORIZED.value(),
+                            "Authorization header is missing or invalid",
+                            null
                             )
                     );
         }
+
+        String token = authHeader.substring(7);
+        UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "User fetched successfully",
+                        user
+                        )
+                );
     }
 
     @GetMapping("/get")
@@ -81,74 +70,50 @@ public class UserController {
             @RequestParam(required = false) String email,
             @ParameterObject Pageable pageable
     ) {
-        try {
-            if (userId != null) {
-                UserModel user = this.userService.getUserByUserId(userId);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new GenericResponse<>(
-                                HttpStatus.OK.value(),
-                                "User fetched successfully",
-                                user
-                                )
-                        );
-            }
-
-            if (email != null) {
-                UserModel user = this.userService.getUserByEmail(email);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new GenericResponse<>(
-                                HttpStatus.OK.value(),
-                                "User fetched successfully",
-                                user
-                                )
-                        );
-            }
-
-            Page<UserModel> users = this.userService.getAllUsers(pageable);
+        if (userId != null) {
+            UserModel user = this.userService.getUserByUserId(userId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new GenericResponse<>(
                             HttpStatus.OK.value(),
-                            "User list fetched successfully",
-                            users
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while fetching the users:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while fetching the users: " + e.getMessage(),
-                            null
+                            "User fetched successfully",
+                            user
                             )
                     );
         }
+
+        if (email != null) {
+            UserModel user = this.userService.getUserByEmail(email);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new GenericResponse<>(
+                            HttpStatus.OK.value(),
+                            "User fetched successfully",
+                            user
+                            )
+                    );
+        }
+
+        Page<UserModel> users = this.userService.getAllUsers(pageable);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "User list fetched successfully",
+                        users
+                        )
+                );
     }
 
     @PostMapping("/create")
     public ResponseEntity<GenericResponse<?>> createUser(
             @Valid @RequestBody CreateUserRequest createUserRequest
     ) {
-        try {
-            UserModel user = this.userService.createUser(createUserRequest);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new GenericResponse<>(
-                            HttpStatus.CREATED.value(),
-                            "User created successfully",
-                            user
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while creating the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while creating the user: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        UserModel user = this.userService.createUser(createUserRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new GenericResponse<>(
+                        HttpStatus.CREATED.value(),
+                        "User created successfully",
+                        user
+                        )
+                );
     }
 
     @PatchMapping("/update")
@@ -156,51 +121,27 @@ public class UserController {
             @RequestParam UUID userId,
             @Valid @RequestBody UpdateUserByIdRequest updateUserByIdRequest
     ) {
-        try {
-            UserModel user = this.userService.updateUserByUserId(userId, updateUserByIdRequest);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "User updated successfully",
-                            user
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while updating the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while updating the user: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        UserModel user = this.userService.updateUserByUserId(userId, updateUserByIdRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "User updated successfully",
+                        user
+                        )
+                );
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<GenericResponse<?>> deleteUserById(
             @RequestParam UUID userId
     ) {
-        try {
-            this.userService.deleteUserByUserId(userId);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "User deleted successfully",
-                            null
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while deleting the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while deleting the user: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        this.userService.deleteUserByUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                                HttpStatus.OK.value(),
+                                "User deleted successfully",
+                                null
+                        )
+                );
     }
 }

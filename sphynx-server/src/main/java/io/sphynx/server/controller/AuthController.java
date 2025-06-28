@@ -37,54 +37,30 @@ public class AuthController {
     public ResponseEntity<GenericResponse<?>> signUp(
             @Valid @RequestBody SignUpRequest signUpRequest
     ) {
-        try {
-            UserModel user = this.authService.register(signUpRequest);
-            String token = jwtService.generateToken(user.getUserId(), TokenType.AUTH);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new GenericResponse<>(
-                            HttpStatus.CREATED.value(),
-                            "User signed up successfully",
-                            token
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while creating the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while creating the user: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        UserModel user = this.authService.register(signUpRequest);
+        String token = jwtService.generateToken(user.getUserId(), TokenType.AUTH);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new GenericResponse<>(
+                        HttpStatus.CREATED.value(),
+                        "User signed up successfully",
+                        token
+                        )
+                );
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<GenericResponse<?>> signIn(
             @Valid @RequestBody SignInRequest signInRequest
     ) {
-        try {
-            UserModel user =  this.authService.authenticate(signInRequest);
-            String token = this.jwtService.generateToken(user.getUserId(), TokenType.AUTH);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "User signed in successfully",
-                            token
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while authenticating the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while authenticating the user: " + e.getMessage(),
-                            null
-                            )
-                    );
-        }
+        UserModel user =  this.authService.authenticate(signInRequest);
+        String token = this.jwtService.generateToken(user.getUserId(), TokenType.AUTH);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "User signed in successfully",
+                        token
+                        )
+                );
     }
 
     @PostMapping("/reset-password")
@@ -92,36 +68,24 @@ public class AuthController {
             @RequestParam String resetToken,
             @Valid @RequestBody ResetPasswordRequest resetPasswordRequest
     ) {
-        try {
-            if (!jwtService.isTokenValid(resetToken, TokenType.RESET)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new GenericResponse<>(
-                                HttpStatus.BAD_REQUEST.value(),
-                                "Reset token is invalid or has expired",
-                                null
-                                )
-                        );
-            }
-
-            UserModel user = this.jwtService.extractUserFromToken(resetToken, TokenType.RESET);
-            this.authService.resetPassword(user, resetPasswordRequest);
-            return ResponseEntity.status(HttpStatus.OK)
+        if (!jwtService.isTokenValid(resetToken, TokenType.RESET)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new GenericResponse<>(
-                            HttpStatus.OK.value(),
-                            "Password reset successfully",
-                            null
-                            )
-                    );
-
-        } catch (Exception e) {
-            logger.error("An error occurred while resetting password the user:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "An error occurred while resetting password the user: " + e.getMessage(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            "Reset token is invalid or has expired",
                             null
                             )
                     );
         }
+
+        UserModel user = this.jwtService.extractUserFromToken(resetToken, TokenType.RESET);
+        this.authService.resetPassword(user, resetPasswordRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GenericResponse<>(
+                        HttpStatus.OK.value(),
+                        "Password reset successfully",
+                        null
+                        )
+                );
     }
 }

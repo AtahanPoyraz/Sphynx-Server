@@ -98,4 +98,11 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<GenericResponse<?>> handleAllExceptions(Exception e) {
+        logger.error("An error occurred", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new GenericResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error", null));
+    }
 }

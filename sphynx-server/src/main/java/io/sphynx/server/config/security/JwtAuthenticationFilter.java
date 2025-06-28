@@ -16,26 +16,34 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private final JwtService jwtService;
+    private final Endpoints endpoints;
 
     @Autowired
     public JwtAuthenticationFilter(
-            JwtService jwtService
+            JwtService jwtService,
+            Endpoints endpoints
     ) {
         this.jwtService = jwtService;
+        this.endpoints = endpoints;
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
-        return false;
+    protected boolean shouldNotFilter(
+            @NonNull HttpServletRequest request
+    ) throws ServletException {
+        return Arrays.stream(this.endpoints.getCommonEndpoints()).anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
     }
 
     @Override
