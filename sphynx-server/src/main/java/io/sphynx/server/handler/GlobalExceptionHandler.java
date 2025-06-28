@@ -103,6 +103,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GenericResponse<?>> handleExceptions(Exception e) {
         logger.error("An error occurred", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new GenericResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error", null));
+                .body(new GenericResponse<>(
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        "Internal server error",
+                        null
+                        )
+                );
     }
 }
