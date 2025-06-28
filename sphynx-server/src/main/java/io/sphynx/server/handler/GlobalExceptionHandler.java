@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GenericResponse<?>> handleJsonParseException(
             HttpMessageNotReadableException e
     ) {
-        logger.error("Invalid JSON format", e);
+        logger.warn("Invalid JSON format", e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new GenericResponse<>(
                         HttpStatus.BAD_REQUEST.value(),
