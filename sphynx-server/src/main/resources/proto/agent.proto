@@ -21,11 +21,11 @@ message AgentConfig {
 }
 
 message AgentModel {
-  string agentId = 1;
-  string agentName = 2;
-  AgentStatus agentStatus = 3;
-  AgentConfig agentConfig = 4;
-  string activationToken = 5;
+  string id = 1;
+  string name = 2;
+  AgentStatus status = 3;
+  AgentConfig config = 4;
+  string token = 5;
   google.protobuf.Timestamp createdAt = 6;
   google.protobuf.Timestamp updatedAt = 7;
 }

@@ -80,7 +80,7 @@ public class AgentService {
     }
 
     @Transactional
-    public AgentModel refreshActivationToken(UUID agentId) {
+    public AgentModel refreshToken(UUID agentId) {
         AgentModel agent = this.agentRepository.findById(agentId)
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 

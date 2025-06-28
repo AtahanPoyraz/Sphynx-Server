@@ -30,7 +30,6 @@ public class SwaggerConfig {
                                 .name("GNU General Public License v3.0")
                                 .url("https://www.gnu.org/licenses/gpl-3.0.en.html"))
                 )
-
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

@@ -37,16 +37,16 @@ public class AgentController {
         this.agentService = agentService;
     }
 
-    @GetMapping("/refresh-activation-token")
+    @GetMapping("/refresh-agent-token")
     public ResponseEntity<GenericResponse<?>> updateActivationToken(
             @RequestParam UUID agentId
     ) {
-        AgentModel agent = this.agentService.refreshActivationToken(agentId);
+        AgentModel agent = this.agentService.refreshToken(agentId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(
                         HttpStatus.OK.value(),
-                        "Agent activation token refreshed successfully",
-                        agent.getActivationToken()
+                        "Agent token refreshed successfully",
+                        agent.getToken()
                         )
                 );
     }
