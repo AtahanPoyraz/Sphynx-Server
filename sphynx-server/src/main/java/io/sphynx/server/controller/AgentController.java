@@ -46,7 +46,7 @@ public class AgentController {
                 .body(new GenericResponse<>(
                         HttpStatus.OK.value(),
                         "Agent token refreshed successfully",
-                        agent.getToken()
+                        agent.getAgentToken()
                         )
                 );
     }

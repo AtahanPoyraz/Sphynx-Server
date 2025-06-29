@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ActivateAgentRequest {
-    @NotBlank(message = "activationToken flag cannot be empty")
-    private String activationToken;
+    @NotBlank(message = "agentToken flag cannot be empty")
+    private String agentToken;
 }
