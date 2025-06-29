@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface AgentRepository extends JpaRepository<AgentModel, UUID> {
-    Optional<AgentModel> findByActivationToken(String activationToken);
+    Optional<AgentModel> findByToken(String activationToken);
     List<AgentModel> findByName(String agentName);
     List<AgentModel> findByUpdatedAtBeforeAndStatusNot(LocalDateTime time, AgentStatus status);
     List<AgentModel> findAllByUser_UserId(UUID userId);

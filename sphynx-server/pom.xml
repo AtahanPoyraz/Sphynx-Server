@@ -9,10 +9,10 @@
 		<relativePath/>
 	</parent>
 	<groupId>io.sphynx</groupId>
-	<artifactId>server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>server</name>
-	<description>Sphynx-server is a Spring Boot backend service designed to receive and process system metrics sent by Sphynx agents running on client machines.</description>
+	<artifactId>sphynx-server</artifactId>
+	<version>1.0.0</version>
+	<name>sphynx-server</name>
+	<description>Sphynx Server is a Spring Boot backend service designed to receive and process system metrics sent by Sphynx agents running on client machines.</description>
 	<url/>
 	<licenses>
 		<license/>

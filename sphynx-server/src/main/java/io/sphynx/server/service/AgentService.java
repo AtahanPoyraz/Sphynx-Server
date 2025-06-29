@@ -52,7 +52,7 @@ public class AgentService {
 
     @Transactional
     public AgentModel activateAgent(ActivateAgentRequest activateAgentRequest) {
-        AgentModel agent = this.agentRepository.findByActivationToken(activateAgentRequest.getActivationToken())
+        AgentModel agent = this.agentRepository.findByToken(activateAgentRequest.getActivationToken())
                 .orElseThrow(() -> new EntityNotFoundException("Agent not found with token: " + activateAgentRequest.getActivationToken()));
 
         agent.setStatus(AgentStatus.ACTIVE);
