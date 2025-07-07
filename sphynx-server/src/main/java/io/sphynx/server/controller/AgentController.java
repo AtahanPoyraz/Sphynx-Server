@@ -1,7 +1,6 @@
 package io.sphynx.server.controller;
 
 import io.sphynx.server.dto.GenericResponse;
-import io.sphynx.server.dto.agent.ActivateAgentRequest;
 import io.sphynx.server.dto.agent.CreateAgentRequest;
 import io.sphynx.server.dto.agent.UpdateAgentByIdRequest;
 import io.sphynx.server.model.AgentModel;
@@ -10,8 +9,6 @@ import io.sphynx.server.model.enums.UserRole;
 import io.sphynx.server.service.AgentService;
 import io.sphynx.server.service.AgentTokenService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -116,19 +113,19 @@ public class AgentController {
 
     @PostMapping("/activate")
     public ResponseEntity<GenericResponse<?>> activateAgent(
-            @Valid @RequestBody ActivateAgentRequest activateAgentRequest
+            @RequestParam String agentToken
     ) {
-        if (!this.agentTokenService.isAgentTokenValid(activateAgentRequest.getAgentToken())) {
+        if (!this.agentTokenService.isAgentTokenValid(agentToken)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new GenericResponse<>(
-                                    HttpStatus.BAD_REQUEST.value(),
-                                    "Agent token is invalid or has expired",
-                                    null
+                            HttpStatus.BAD_REQUEST.value(),
+                            "Agent token is invalid or has expired",
+                            null
                             )
                     );
         }
 
-        AgentModel agent = this.agentTokenService.extractAgentFromToken(activateAgentRequest.getAgentToken());
+        AgentModel agent = this.agentTokenService.extractAgentFromToken(agentToken);
         AgentModel activatedAgent = this.agentService.activateAgent(agent.getAgentId());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(

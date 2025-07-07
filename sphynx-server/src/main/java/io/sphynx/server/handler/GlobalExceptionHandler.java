@@ -66,9 +66,9 @@ public class GlobalExceptionHandler {
         logger.warn("Entity not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new GenericResponse<>(
-                                HttpStatus.NOT_FOUND.value(),
-                                e.getMessage(),
-                                null
+                        HttpStatus.NOT_FOUND.value(),
+                        e.getMessage(),
+                        null
                         )
                 );
     }
@@ -94,9 +94,9 @@ public class GlobalExceptionHandler {
         logger.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new GenericResponse<>(
-                                HttpStatus.BAD_REQUEST.value(),
-                                e.getMessage(),
-                                null
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage(),
+                        null
                         )
                 );
     }
@@ -108,9 +108,9 @@ public class GlobalExceptionHandler {
         logger.warn("Method not supported {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new GenericResponse<>(
-                                HttpStatus.BAD_REQUEST.value(),
-                                e.getMessage(),
-                                null
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage(),
+                        null
                         )
                 );
     }

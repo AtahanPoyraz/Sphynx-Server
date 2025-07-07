@@ -1,6 +1,5 @@
 package io.sphynx.server.service;
 
-import io.sphynx.server.dto.agent.ActivateAgentRequest;
 import io.sphynx.server.dto.agent.CreateAgentRequest;
 import io.sphynx.server.dto.agent.UpdateAgentByIdRequest;
 import io.sphynx.server.model.AgentModel;
