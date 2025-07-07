@@ -8,6 +8,7 @@ import io.sphynx.server.model.AgentModel;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.UserRole;
 import io.sphynx.server.service.AgentService;
+import io.sphynx.server.service.AgentTokenService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,27 +27,28 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/agent")
 public class AgentController {
-    private static final Logger logger = LoggerFactory.getLogger(AgentController.class);
-
     private final AgentService agentService;
+    private final AgentTokenService agentTokenService;
 
     @Autowired
     public AgentController(
-            AgentService agentService
+            AgentService agentService,
+            AgentTokenService agentTokenService
     ) {
         this.agentService = agentService;
+        this.agentTokenService = agentTokenService;
     }
 
     @GetMapping("/refresh-agent-token")
     public ResponseEntity<GenericResponse<?>> updateActivationToken(
             @RequestParam UUID agentId
     ) {
-        AgentModel agent = this.agentService.refreshToken(agentId);
+        String token = this.agentTokenService.generateAgentToken(agentId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(
                         HttpStatus.OK.value(),
                         "Agent token refreshed successfully",
-                        agent.getAgentToken()
+                        token
                         )
                 );
     }
@@ -116,12 +118,23 @@ public class AgentController {
     public ResponseEntity<GenericResponse<?>> activateAgent(
             @Valid @RequestBody ActivateAgentRequest activateAgentRequest
     ) {
-        AgentModel agent = this.agentService.activateAgent(activateAgentRequest);
+        if (!this.agentTokenService.isAgentTokenValid(activateAgentRequest.getAgentToken())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new GenericResponse<>(
+                                    HttpStatus.BAD_REQUEST.value(),
+                                    "Agent token is invalid or has expired",
+                                    null
+                            )
+                    );
+        }
+
+        AgentModel agent = this.agentTokenService.extractAgentFromToken(activateAgentRequest.getAgentToken());
+        AgentModel activatedAgent = this.agentService.activateAgent(agent.getAgentId());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(
                         HttpStatus.OK.value(),
                         "Agent activated successfully",
-                        agent
+                        activatedAgent
                         )
                 );
     }

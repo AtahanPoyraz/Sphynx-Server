@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -85,6 +87,34 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<GenericResponse<?>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e
+    ) {
+        logger.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new GenericResponse<>(
+                                HttpStatus.BAD_REQUEST.value(),
+                                e.getMessage(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<GenericResponse<?>> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e
+    ) {
+        logger.warn("Method not supported {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new GenericResponse<>(
+                                HttpStatus.BAD_REQUEST.value(),
+                                e.getMessage(),
+                                null
+                        )
+                );
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<GenericResponse<?>> handleRuntimeException(
             RuntimeException e
@@ -100,7 +130,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<GenericResponse<?>> handleExceptions(Exception e) {
+    public ResponseEntity<GenericResponse<?>> handleExceptions(
+            Exception e
+    ) {
         logger.error("An error occurred", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GenericResponse<>(

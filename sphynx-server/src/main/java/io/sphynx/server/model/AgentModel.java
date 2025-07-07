@@ -37,9 +37,6 @@ public class AgentModel {
     @Column(name = "config", columnDefinition = "jsonb")
     private AgentConfig config;
 
-    @Column(name = "agent_token", nullable = false)
-    private String agentToken;
-
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

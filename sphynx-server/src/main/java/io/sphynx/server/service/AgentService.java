@@ -51,9 +51,9 @@ public class AgentService {
     }
 
     @Transactional
-    public AgentModel activateAgent(ActivateAgentRequest activateAgentRequest) {
-        AgentModel agent = this.agentRepository.findByAgentToken(activateAgentRequest.getAgentToken())
-                .orElseThrow(() -> new EntityNotFoundException("Agent not found with token: " + activateAgentRequest.getAgentToken()));
+    public AgentModel activateAgent(UUID agentId) {
+        AgentModel agent = this.agentRepository.findById(agentId)
+                .orElseThrow(() -> new EntityNotFoundException("Agent not found"));
 
         agent.setStatus(AgentStatus.ACTIVE);
         return this.agentRepository.save(agent);
@@ -75,14 +75,6 @@ public class AgentService {
         agent.setStatus(AgentStatus.INACTIVE);
         agent.setConfig(createAgentRequest.getAgentConfig());
         agent.setUser(user.get());
-
-        return this.agentRepository.save(agent);
-    }
-
-    @Transactional
-    public AgentModel refreshToken(UUID agentId) {
-        AgentModel agent = this.agentRepository.findById(agentId)
-                .orElseThrow(() -> new EntityNotFoundException("Agent not found with id: " + agentId));
 
         return this.agentRepository.save(agent);
     }
