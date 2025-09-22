@@ -26,7 +26,7 @@ public class AgentModel {
     @Column(name = "agent_id", nullable = false, updatable = false)
     private UUID agentId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
