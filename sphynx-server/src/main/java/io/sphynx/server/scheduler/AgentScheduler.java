@@ -14,11 +14,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Slf4j
 @Component
 public class AgentScheduler {
     private static final Logger logger = LoggerFactory.getLogger(AgentScheduler.class);
-
     private final AgentRepository agentRepository;
 
     @Autowired
