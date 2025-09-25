@@ -19,6 +19,7 @@ public class Endpoints {
 
     private final List<String> common = List.of(
             "/api/v1/auth/**",
+            "/api/v1/user/me",
             "/api/v1/agent/activate"
     );
 
@@ -28,8 +29,8 @@ public class Endpoints {
     );
 
     private final List<String> authenticated = List.of(
-            "/api/v1/agent/**",
-            "/api/v1/user/me"
+            "/api/v1/auth/sign-out",
+            "/api/v1/agent/**"
     );
 
     private final List<String> admin = List.of(

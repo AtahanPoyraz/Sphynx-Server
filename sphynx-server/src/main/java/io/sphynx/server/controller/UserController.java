@@ -7,6 +7,7 @@ import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.JwtService;
 import io.sphynx.server.service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
@@ -35,29 +36,35 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<GenericResponse<?>> me(
-            HttpServletRequest servletRequest
-    ) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    public ResponseEntity<GenericResponse<?>> me(HttpServletRequest servletRequest) {
+        String token = null;
+
+        Cookie[] cookies = servletRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("JWT".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token == null || token.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new GenericResponse<>(
                             HttpStatus.UNAUTHORIZED.value(),
-                            "Authorization header is missing or invalid",
+                            "JWT cookie is missing or empty",
                             null
-                            )
-                    );
+                    ));
         }
 
-        String token = authHeader.substring(7);
         UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GenericResponse<>(
                         HttpStatus.OK.value(),
                         "User fetched successfully",
                         user
-                        )
-                );
+                ));
     }
 
     @GetMapping("/get")

@@ -1,16 +1,20 @@
 package io.sphynx.server.config.security;
 
+import io.sphynx.server.dto.GenericResponse;
 import io.sphynx.server.model.UserModel;
 import io.sphynx.server.model.enums.TokenType;
 import io.sphynx.server.service.JwtService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,50 +52,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
+            @NonNull HttpServletRequest servletRequest,
+            @NonNull HttpServletResponse servletResponse,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            final String authHeader = request.getHeader("Authorization");
-            if (!this.isBearerTokenPresent(authHeader)) {
+            String token = null;
+
+            Cookie[] cookies = servletRequest.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("JWT".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+
+            if (token == null || token.isEmpty()) {
                 SecurityContextHolder.clearContext();
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization header missing or invalid");
+                servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token missing or invalid");
                 return;
             }
 
-            final String token = this.extractToken(authHeader);
             if (!jwtService.isTokenValid(token, TokenType.AUTH)) {
                 SecurityContextHolder.clearContext();
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
                 return;
             }
 
             UserModel user = this.jwtService.extractUserFromToken(token, TokenType.AUTH);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(servletRequest));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(servletRequest, servletResponse);
 
         } catch (EntityNotFoundException e) {
             logger.error("Entity not found: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+            servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
 
         } catch (Exception e) {
             logger.error("An error occurred while authenticating user:", e);
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication error");
+            servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication error");
         }
-    }
-
-    private boolean isBearerTokenPresent(String authHeader) {
-        return authHeader != null && authHeader.startsWith("Bearer ");
-    }
-
-    private String extractToken(String authHeader) {
-        return authHeader.substring(7);
     }
 }

@@ -16,11 +16,6 @@ public class SignInRequest {
     @NotBlank(message = "email flag cannot be empty")
     private String email;
 
-    @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
-    @Pattern(
-            regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{6,20}$",
-            message = "Password must contain at least one letter, one number, and one special character"
-    )
     @NotBlank(message = "password flag cannot be empty")
     private String password;
 }

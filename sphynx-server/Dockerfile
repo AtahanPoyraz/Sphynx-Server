@@ -1,4 +1,4 @@
-FROM openjdk:24-slim AS jdk
+FROM openjdk:25-slim AS jdk
 RUN apt-get update && apt-get install -y maven && apt-get install -y curl
 
 WORKDIR /app
@@ -8,7 +8,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM openjdk:24-slim
+FROM openjdk:25-slim
 
 WORKDIR /app
 COPY --from=jdk /app/target/*.jar app.jar
