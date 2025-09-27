@@ -20,6 +20,7 @@ public class Endpoints {
     private final List<String> common = List.of(
             "/api/v1/auth/**",
             "/api/v1/user/me",
+            "/api/v1/user/update",
             "/api/v1/agent/activate"
     );
 

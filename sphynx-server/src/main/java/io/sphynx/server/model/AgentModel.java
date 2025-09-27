@@ -19,14 +19,19 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "agents")
+@Table(
+        name = "agents",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_agents_user_name", columnNames = {"user_id", "name"})
+        }
+)
 public class AgentModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "agent_id", nullable = false, updatable = false)
     private UUID agentId;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
